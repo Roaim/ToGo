@@ -4,14 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import com.roaim.togo.R
+import com.roaim.togo.databinding.FragmentDashboardBinding
+import dagger.android.support.AndroidSupportInjection
+import javax.inject.Inject
 
 class DashboardFragment : Fragment() {
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var dashboardViewModel: DashboardViewModel
 
     override fun onCreateView(
@@ -19,13 +23,16 @@ class DashboardFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        AndroidSupportInjection.inject(this)
         dashboardViewModel =
-            ViewModelProviders.of(this).get(DashboardViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
-        val textView: TextView = root.findViewById(R.id.text_dashboard)
-        dashboardViewModel.text.observe(this, Observer {
-            textView.text = it
-        })
-        return root
+            ViewModelProviders.of(this, viewModelFactory).get(DashboardViewModel::class.java)
+        return FragmentDashboardBinding.inflate(inflater).run {
+            val adapter = DashBoardAdapter()
+            recyclerView.adapter = adapter
+            dashboardViewModel.togoList.observe(viewLifecycleOwner, Observer {
+                adapter.reload(it)
+            })
+            root
+        }
     }
 }

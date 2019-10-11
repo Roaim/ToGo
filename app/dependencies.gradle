@@ -2,6 +2,7 @@ ext {
     def androidx_version = '1.1.0'
     def navigation_version = '2.1.0'
     def lifecycle_version = "2.1.0"
+    def liveData_version = "2.2.0-beta01"
     def coroutines_version = "1.2.1"
     def roomVersion = '2.2.0'
     def RxAndroidVersion = '2.0.1'
@@ -9,6 +10,7 @@ ext {
     def RxKotlinVersion = '2.1.0'
     def RetrofitVersion = '2.3.0'
     def OkHttpVersion = '3.9.1'
+    def dagger2_version = '2.24'
 
     generalDependencies = [
             kotlin          : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version",
@@ -30,7 +32,7 @@ ext {
             common: "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version",
             extension: "androidx.lifecycle:lifecycle-extensions:$lifecycle_version",
             viewmodel: "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version",
-            livedata: "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+            livedata: "androidx.lifecycle:lifecycle-livedata-ktx:$liveData_version"
     ]
 
     coroutinesDependencies = [
@@ -55,7 +57,13 @@ ext {
             rxKotlin             : "io.reactivex.rxjava2:rxkotlin:${RxKotlinVersion}",
             rxAndroid            : "io.reactivex.rxjava2:rxandroid:${RxAndroidVersion}",
             retrofitAdapter      : "com.squareup.retrofit2:adapter-rxjava2:${RetrofitVersion}",
-            lifecycle            : "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
+            lifecycle            : "androidx.lifecycleOwner:lifecycleOwner-reactivestreams-ktx:$lifecycle_version"
+    ]
+
+    daggerDependencies = [
+            dagger: "com.google.dagger:dagger:$dagger2_version",
+            daggerAndroid: "com.google.dagger:dagger-android:$dagger2_version",
+            daggerSupport   : "com.google.dagger:dagger-android-support:$dagger2_version"
     ]
 
     testDependencies = [
@@ -73,6 +81,9 @@ ext {
     ]
 
     kaptDependencies = [
-            roomCompiler: "androidx.room:room-compiler:$roomVersion"
+            lifecycle       : "androidx.lifecycle:lifecycle-compiler:$lifecycle_version",
+            roomCompiler    : "androidx.room:room-compiler:$roomVersion",
+            dagger          : "com.google.dagger:dagger-compiler:$dagger2_version",
+            daggerAndroid   : "com.google.dagger:dagger-android-processor:$dagger2_version"
     ]
 }
