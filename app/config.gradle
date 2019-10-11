@@ -1,0 +1,35 @@
+ext.versionMajor = 0
+ext.versionMinor = 1
+ext.versionPatch = 0
+
+private Integer generateVersionCode() {
+    return ext.versionMajor * 10000 + ext.versionMinor * 100 + ext.versionPatch
+}
+
+private String generateVersionName() {
+    String versionName = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionPatch}"
+    return versionName
+}
+
+android {
+    defaultConfig {
+        versionCode generateVersionCode()
+        versionName generateVersionName()
+    }
+
+    dataBinding {
+        enabled = true
+    }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "ToGo-${defaultConfig.versionName}-${variant.buildType.name}.apk"
+        }
+    }
+}
