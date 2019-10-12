@@ -16,6 +16,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.PointOfInterest
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.TypeFilter
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.roaim.togo.R
@@ -59,6 +60,8 @@ class MapHelper(parent: Fragment, private val viewModel: MapViewModel, resId: In
                 Place.Field.LAT_LNG
             )
         )
+        autocompleteFragment.setCountry("BD")
+        autocompleteFragment.setTypeFilter(TypeFilter.ADDRESS);
 
         autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onError(p0: Status) =
