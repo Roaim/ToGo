@@ -44,10 +44,12 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mapViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapViewModel::class.java)
-        MapHelper(this, mapViewModel).getMap {
+        val mapHelper = MapHelper(this, mapViewModel)
+        mapHelper.getMap {
             LatLng(23.7944856, 90.3985731).animateCamera(it, 13f)
         }
         mapViewModel.poi.observe(viewLifecycleOwner, Observer { addr ->
+            mapHelper.addMarker(addr.name, addr.getLatLng())
             Snackbar.make(view, addr.name, Snackbar.LENGTH_INDEFINITE).apply {
                 setAction("Schedule") {
                     activity?.let { act ->

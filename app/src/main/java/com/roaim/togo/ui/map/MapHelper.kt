@@ -1,22 +1,30 @@
 package com.roaim.togo.ui.map
 
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.observe
+import com.google.android.gms.common.api.Status
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.PointOfInterest
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.roaim.togo.R
 import com.roaim.togo.data.model.Address
 import com.roaim.togo.utils.addMarker
 import com.roaim.togo.utils.animateCamera
 import com.roaim.togo.utils.formatDate
 import java.lang.ref.WeakReference
+
 
 class MapHelper(parent: Fragment, private val viewModel: MapViewModel, resId: Int = R.id.map) :
     LifecycleObserver,
@@ -32,6 +40,42 @@ class MapHelper(parent: Fragment, private val viewModel: MapViewModel, resId: In
         lifecycleOwner.get()?.lifecycle?.addObserver(this)
         val mapFragment = parent.childFragmentManager.findFragmentById(resId) as SupportMapFragment
         mapFragment.getMapAsync(this)
+    }
+
+    init {
+        if (!Places.isInitialized() && parent.activity != null) {
+            Places.initialize(
+                parent.activity!!.applicationContext,
+                parent.getString(R.string.google_maps_key)
+            );
+        }
+        val autocompleteFragment =
+            parent.childFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
+
+        autocompleteFragment.setPlaceFields(
+            listOf(
+                Place.Field.ID,
+                Place.Field.NAME,
+                Place.Field.LAT_LNG
+            )
+        )
+
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            override fun onError(p0: Status) =
+                Toast.makeText(parent.context, p0.statusMessage, Toast.LENGTH_LONG).show()
+
+            override fun onPlaceSelected(place: Place) {
+                place.latLng?.apply {
+                    viewModel.setSchedule(
+                        Address(
+                            place.name ?: "No name",
+                            latitude,
+                            longitude
+                        )
+                    )
+                }
+            }
+        })
     }
 
     fun getMap(block: (GoogleMap) -> Unit = {}) =
@@ -60,14 +104,17 @@ class MapHelper(parent: Fragment, private val viewModel: MapViewModel, resId: In
         }
     }
 
-    //    POI click listener
-    override fun onPoiClick(p0: PointOfInterest) {
+    fun addMarker(name: String, latLng: LatLng) {
         map?.also {
             currentMarker?.remove()
-            currentMarker = p0.latLng?.addMarker(it, p0.name)
-            p0.latLng?.animateCamera(it, 18f)
-            viewModel.setSchedule(Address(p0.name, p0.latLng.latitude, p0.latLng.longitude))
+            currentMarker = latLng.addMarker(it, name)
+            latLng.animateCamera(it, 18f)
         }
+    }
+
+    //    POI click listener
+    override fun onPoiClick(p0: PointOfInterest) {
+        viewModel.setSchedule(Address(p0.name, p0.latLng.latitude, p0.latLng.longitude))
     }
 
     // Marker drag listener start
