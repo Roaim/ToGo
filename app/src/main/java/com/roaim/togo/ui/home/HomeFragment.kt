@@ -3,6 +3,7 @@ package com.roaim.togo.ui.home
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -19,8 +20,10 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
+import com.roaim.togo.PlaceReminder
 import com.roaim.togo.R
 import com.roaim.togo.base.ScheduleInputDialog
+import com.roaim.togo.data.model.ToGo
 import com.roaim.togo.ui.map.MapHelper
 import com.roaim.togo.ui.map.MapViewModel
 import com.roaim.togo.utils.animateCamera
@@ -32,6 +35,8 @@ class HomeFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var mapViewModel: MapViewModel
     private val args: HomeFragmentArgs by navArgs()
@@ -71,12 +76,28 @@ class HomeFragment : Fragment() {
                                 showDozeOptimizationDialog(act)
                             }
                             homeViewModel.saveSchedule(it)
+                            setReminder(act, it)
                         }
                         dismiss()
                     }
                 }
             }.show()
         })
+    }
+
+    private fun setReminder(context: Context, togo: ToGo) {
+        if (sharedPreferences.getBoolean("boot", false)) {
+            PlaceReminder.enableBootReceiver(context)
+            sharedPreferences.edit().putBoolean("boot", true).apply()
+        }
+        PlaceReminder.setReminder(context, togo)
+        PlaceReminder.setReminder(
+            context, ToGo(
+                togo.id.times(10000),
+                togo.address,
+                togo.schedule.minus(24 * 60 * 60 * 1000)
+            )
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

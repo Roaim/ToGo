@@ -119,6 +119,7 @@ class MapHelper(parent: Fragment, private val viewModel: MapViewModel, resId: In
         }
     }
 
+    //    Called either by tapping point of interest or auto complete callback
     fun addMarker(name: String, latLng: LatLng) {
         map?.also {
             currentMarker?.remove()
@@ -155,6 +156,7 @@ class MapHelper(parent: Fragment, private val viewModel: MapViewModel, resId: In
         savedMarkers.clear()
     }
 
+    // Primarily used when place list item clicked
     fun showInfoWindow(latLng: LatLng) {
         savedMarkers[latLng]?.showInfoWindow()
     }

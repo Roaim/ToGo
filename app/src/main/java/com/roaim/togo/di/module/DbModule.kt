@@ -1,6 +1,8 @@
 package com.roaim.togo.di.module
 
 import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.roaim.togo.data.local.ToGoDB
 import com.roaim.togo.data.local.ToGoDao
@@ -25,9 +27,9 @@ class DbModule {
         return toGoDB.toGoDao()
     }
 
-//    @Provides
-//    @Singleton
-//    internal fun provideLocalDataSource(localDataSource: LocalDataSource): LocalDataSource {
-//        return localDataSource
-//    }
+    @Provides
+    @Singleton
+    internal fun provideSharedPreference(application: Application): SharedPreferences {
+        return application.getSharedPreferences("config", Context.MODE_PRIVATE)
+    }
 }
