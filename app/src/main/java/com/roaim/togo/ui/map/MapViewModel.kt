@@ -6,13 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.roaim.togo.data.ToGoRepository
+import com.roaim.togo.data.model.Address
 import com.roaim.togo.data.model.ToGo
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MapViewModel @Inject constructor(private val toGoRepository: ToGoRepository) : ViewModel() {
-    private val _msg = MutableLiveData<String>()
-    val msg: LiveData<String> = _msg
+    private val _poi = MutableLiveData<Address>()
+    val poi: LiveData<Address> = _poi
 
     private val latLng = MutableLiveData<LatLng>()
 
@@ -22,7 +23,7 @@ class MapViewModel @Inject constructor(private val toGoRepository: ToGoRepositor
 
     fun getSavedMarkerAddress(): LiveData<List<ToGo>> = toGoRepository.getSavedAddressees()
 
-    fun showMsg(msg: String) {
-        _msg.value = msg
+    fun setSchedule(address: Address) {
+        _poi.value = address
     }
 }

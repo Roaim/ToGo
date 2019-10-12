@@ -9,4 +9,5 @@ import javax.inject.Singleton
 @Singleton
 class ToGoRepository @Inject constructor(private val localDataSource: LocalDataSource) {
     fun getSavedAddressees(): LiveData<List<ToGo>> = localDataSource.getAllToGo()
+    suspend fun saveToGo(toGo: ToGo) = localDataSource.saveToGo(toGo)
 }

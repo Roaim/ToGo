@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import com.roaim.togo.R
+import com.roaim.togo.base.ScheduleInputDialog
 import com.roaim.togo.ui.map.MapHelper
 import com.roaim.togo.ui.map.MapViewModel
 import com.roaim.togo.utils.animateCamera
@@ -37,9 +38,6 @@ class HomeFragment : Fragment() {
     ): View? {
         homeViewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_home, container, false)
-        homeViewModel.text.observe(this, Observer {
-
-        })
         return root
     }
 
@@ -49,8 +47,17 @@ class HomeFragment : Fragment() {
         MapHelper(this, mapViewModel).getMap {
             LatLng(23.7944856, 90.3985731).animateCamera(it, 13f)
         }
-        mapViewModel.msg.observe(viewLifecycleOwner, Observer {
-            Snackbar.make(view, it, Snackbar.LENGTH_LONG).show()
+        mapViewModel.poi.observe(viewLifecycleOwner, Observer { addr ->
+            Snackbar.make(view, addr.name, Snackbar.LENGTH_INDEFINITE).apply {
+                setAction("Schedule") {
+                    activity?.let { act ->
+                        ScheduleInputDialog.show(act, addr) {
+                            homeViewModel.saveSchedule(it)
+                        }
+                        dismiss()
+                    }
+                }
+            }.show()
         })
     }
 }

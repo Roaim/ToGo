@@ -1,15 +1,14 @@
 package com.roaim.togo.ui.home
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.roaim.togo.data.ToGoRepository
+import com.roaim.togo.data.model.ToGo
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(private val repository: ToGoRepository) : ViewModel() {
-
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is home Fragment"
+    fun saveSchedule(toGo: ToGo) = viewModelScope.launch {
+        repository.saveToGo(toGo)
     }
-    val text: LiveData<String> = _text
 }

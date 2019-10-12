@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.PointOfInterest
 import com.roaim.togo.R
+import com.roaim.togo.data.model.Address
 import com.roaim.togo.utils.addMarker
 import com.roaim.togo.utils.animateCamera
 import com.roaim.togo.utils.formatDate
@@ -60,14 +61,13 @@ class MapHelper(parent: Fragment, private val viewModel: MapViewModel, resId: In
     }
 
     //    POI click listener
-    override fun onPoiClick(p0: PointOfInterest?) {
+    override fun onPoiClick(p0: PointOfInterest) {
         map?.also {
             currentMarker?.remove()
-            currentMarker =
-                p0?.latLng?.addMarker(it, p0.name)
-            p0?.latLng?.animateCamera(it, 18f)
+            currentMarker = p0.latLng?.addMarker(it, p0.name)
+            p0.latLng?.animateCamera(it, 18f)
+            viewModel.setSchedule(Address(p0.name, p0.latLng.latitude, p0.latLng.longitude))
         }
-        viewModel.showMsg("POI name = ${p0?.name}")
     }
 
     // Marker drag listener start
