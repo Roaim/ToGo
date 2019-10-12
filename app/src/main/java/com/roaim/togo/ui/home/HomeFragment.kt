@@ -1,13 +1,22 @@
 package com.roaim.togo.ui.home
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.navArgs
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import com.roaim.togo.R
@@ -25,6 +34,7 @@ class HomeFragment : Fragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var mapViewModel: MapViewModel
+    private val args: HomeFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidSupportInjection.inject(this)
@@ -46,7 +56,10 @@ class HomeFragment : Fragment() {
         mapViewModel = ViewModelProviders.of(this, viewModelFactory).get(MapViewModel::class.java)
         val mapHelper = MapHelper(this, mapViewModel)
         mapHelper.getMap {
-            LatLng(23.7944856, 90.3985731).animateCamera(it, 13f)
+            LatLng(args.lat.toDouble(), args.lng.toDouble()).apply {
+                animateCamera(it, 13f)
+                mapHelper.showInfoWindow(this)
+            }
         }
         mapViewModel.poi.observe(viewLifecycleOwner, Observer { addr ->
             mapHelper.addMarker(addr.name, addr.getLatLng())
@@ -54,6 +67,9 @@ class HomeFragment : Fragment() {
                 setAction("Schedule") {
                     activity?.let { act ->
                         ScheduleInputDialog.show(act, addr) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                showDozeOptimizationDialog(act)
+                            }
                             homeViewModel.saveSchedule(it)
                         }
                         dismiss()
@@ -61,5 +77,17 @@ class HomeFragment : Fragment() {
                 }
             }.show()
         })
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun showDozeOptimizationDialog(activity: Activity) {
+        val packageName = activity.packageName
+        val pm = activity.getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            val intent = Intent()
+            intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+            intent.data = Uri.parse("package:$packageName")
+            activity.startActivity(intent)
+        }
     }
 }

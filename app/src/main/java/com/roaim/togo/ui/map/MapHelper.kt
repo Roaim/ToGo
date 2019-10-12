@@ -36,6 +36,7 @@ class MapHelper(parent: Fragment, private val viewModel: MapViewModel, resId: In
     private var mapCallback: ((GoogleMap) -> Unit)? = null
     private var map: GoogleMap? = null
     private var currentMarker: Marker? = null
+    private val savedMarkers = mutableMapOf<LatLng, Marker>()
 
     init {
         lifecycleOwner.get()?.lifecycle?.addObserver(this)
@@ -88,12 +89,14 @@ class MapHelper(parent: Fragment, private val viewModel: MapViewModel, resId: In
 
     // Map ready callback
     override fun onMapReady(p0: GoogleMap) {
-        map = p0
-        map?.setOnMarkerDragListener(this)
-        map?.setOnPoiClickListener(this)
-        mapCallback?.invoke(p0)
+        p0.setOnMarkerDragListener(this)
+        p0.setOnPoiClickListener(this)
         if (lifecycleOwner.get() == null) return
         viewModel.getSavedMarkerAddress().observe(lifecycleOwner.get()!!) {
+            /*
+            *   Add marker for all saved places. The markers are currently the default ones but it
+            *   will be replace with custom views so that the labels are always visible
+            */
             it.forEach { togo ->
                 togo.address.apply {
                     getLatLng().addMarker(
@@ -101,8 +104,17 @@ class MapHelper(parent: Fragment, private val viewModel: MapViewModel, resId: In
                         name,
                         togo.schedule.formatDate(),
                         BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-                    )
+                    )?.also { marker ->
+                        savedMarkers[getLatLng()] = marker
+                    }
                 }
+            }
+            /*
+            * It will be outside of the observer after making custom markers
+            */
+            if (map == null) {
+                mapCallback?.invoke(p0)
+                map = p0
             }
         }
     }
@@ -112,6 +124,7 @@ class MapHelper(parent: Fragment, private val viewModel: MapViewModel, resId: In
             currentMarker?.remove()
             currentMarker = latLng.addMarker(it, name)
             latLng.animateCamera(it, 18f)
+            currentMarker?.showInfoWindow()
         }
     }
 
@@ -139,5 +152,10 @@ class MapHelper(parent: Fragment, private val viewModel: MapViewModel, resId: In
         mapCallback = null
         map = null
         currentMarker = null
+        savedMarkers.clear()
+    }
+
+    fun showInfoWindow(latLng: LatLng) {
+        savedMarkers[latLng]?.showInfoWindow()
     }
 }

@@ -23,7 +23,7 @@ fun LatLng.addMarker(
                     snippet(it)
                 }
             }
-    ).apply { showInfoWindow() }
+    )
 }
 
 fun LatLng.animateCamera(map: GoogleMap, zoom: Float) {

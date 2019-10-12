@@ -9,12 +9,34 @@
         android:id="@+id/navigation_home"
         android:name="com.roaim.togo.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+        <argument
+            android:name="lat"
+            android:defaultValue="23.7944856"
+            app:argType="string" />
+        <argument
+            android:name="lng"
+            android:defaultValue="90.3985731"
+            app:argType="string" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_dashboard"
         android:name="com.roaim.togo.ui.dashboard.DashboardFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_dashboard">
+        <action
+            android:id="@+id/action_navigation_dashboard_to_navigation_home"
+            app:destination="@id/navigation_home">
+            <argument
+                android:name="lat"
+                android:defaultValue="23.7944856"
+                app:argType="string" />
+            <argument
+                android:name="lng"
+                android:defaultValue="90.3985731"
+                app:argType="string" />
+        </action>
+    </fragment>
 
 </navigation>
